@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{AE83FE19-5BC3-4C25-BA20-95402CF3BE0B}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>SimpleDatabaseConnection</RootNamespace>
-    <AssemblyName>SimpleDatabaseConnection</AssemblyName>
+    <RootNamespace>DatabaseXmlProject</RootNamespace>
+    <AssemblyName>DatabaseXmlProject</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

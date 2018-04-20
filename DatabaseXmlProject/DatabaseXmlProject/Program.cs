@@ -6,14 +6,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimpleDatabaseConnection
+namespace DatabaseXmlProject
 {
-    class Program
+    static class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            string _connectionString = System.IO.File.ReadAllText("../../connection_string.secret.pass");
-            Database db = new Database(_connectionString);
+            string connectionString = System.IO.File.ReadAllText("../../connection_string.secret.pass");
+            Database db = new Database(connectionString);
 
 //            db.CreateTagsAndAttributesTables();
             db.TryGettingSomeExampleData();

@@ -6,9 +6,9 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using SimpleDatabaseConnection.Models.Database;
+using DatabaseXmlProject.Models.Database;
 
-namespace SimpleDatabaseConnection
+namespace DatabaseXmlProject
 {
     class Database
     {

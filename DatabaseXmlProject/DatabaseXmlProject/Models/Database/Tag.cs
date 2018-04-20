@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace SimpleDatabaseConnection.Models.Database
+namespace DatabaseXmlProject.Models.Database
 {
     [Table(Name = "Tags")]
     public class Tag

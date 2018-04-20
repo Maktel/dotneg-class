@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimpleDatabaseConnection.Models.Database
+namespace DatabaseXmlProject.Models.Database
 {
     [Table(Name = "Attributes")]
     public class Attribute

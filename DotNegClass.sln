@@ -19,9 +19,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WorkWithXmlAndDatabase", "W
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkWithXmlAndDatabase", "WorkWithXmlAndDatabase\WorkWithXmlAndDatabase.csproj", "{ED063190-A4E0-4E95-A8B8-31F57B62D039}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SimpleDatabaseConnection", "SimpleDatabaseConnection", "{6D29A3F8-2461-4ACB-9635-CA5A07060894}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DatabaseXmlProject", "DatabaseXmlProject", "{6D29A3F8-2461-4ACB-9635-CA5A07060894}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleDatabaseConnection", "SimpleDatabaseConnection\SimpleDatabaseConnection\SimpleDatabaseConnection.csproj", "{AE83FE19-5BC3-4C25-BA20-95402CF3BE0B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseXmlProject", "DatabaseXmlProject\DatabaseXmlProject\DatabaseXmlProject.csproj", "{AE83FE19-5BC3-4C25-BA20-95402CF3BE0B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XmlIsMyLife", "XmlIsMyLife\XmlIsMyLife.csproj", "{9B5DCFBB-764B-4187-8352-50951167626C}"
 EndProject
