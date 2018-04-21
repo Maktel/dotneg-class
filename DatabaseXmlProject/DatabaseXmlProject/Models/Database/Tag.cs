@@ -15,8 +15,13 @@ namespace DatabaseXmlProject.Models.Database
         [Column(IsPrimaryKey = true, Name = "tag_id")]
         public int TagId;
 
-        [Column(Name = "name", CanBeNull = false)] public string Name;
-        [Column(Name = "parent_id", CanBeNull = true)] public int? ParentId;
-        [Column(Name = "innertext", CanBeNull = true)] public string InnerText;
+        [Column(Name = "name", CanBeNull = false)]
+        public string Name;
+
+        [Column(Name = "innertext", CanBeNull = true)]
+        public string InnerText;
+
+        [Column(Name = "parent_id", CanBeNull = true)]
+        public int? ParentId;
     }
 }

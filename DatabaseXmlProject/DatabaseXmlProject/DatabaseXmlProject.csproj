@@ -46,6 +46,23 @@
     <Compile Include="Database.cs" />
     <Compile Include="Models\Database\Attribute.cs" />
     <Compile Include="Models\Database\Tag.cs" />
+    <Compile Include="Models\Xml\Currency.cs" />
+    <Compile Include="Models\Xml\Dangerous.cs" />
+    <Compile Include="Models\Xml\Disappoint.cs" />
+    <Compile Include="Models\Xml\Fax.cs" />
+    <Compile Include="Models\Xml\Hall.cs" />
+    <Compile Include="Models\Xml\Hand.cs" />
+    <Compile Include="Models\Xml\Industrial.cs" />
+    <Compile Include="Models\Xml\Insurance.cs" />
+    <Compile Include="Models\Xml\Law.cs" />
+    <Compile Include="Models\Xml\Motivation.cs" />
+    <Compile Include="Models\Xml\Pressure.cs" />
+    <Compile Include="Models\Xml\Put.cs" />
+    <Compile Include="Models\Xml\Realistic.cs" />
+    <Compile Include="Models\Xml\Reception.cs" />
+    <Compile Include="Models\Xml\Root.cs" />
+    <Compile Include="Models\Xml\Visit.cs" />
+    <Compile Include="Parser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -55,8 +72,6 @@
   <ItemGroup>
     <None Include="connection_string.secret.pass" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\Xml\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
