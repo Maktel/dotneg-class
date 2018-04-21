@@ -5,7 +5,6 @@ using System.Data.Linq;
 using System.Data.SqlClient;
 using System.Linq;
 using DatabaseXmlProject.Models.Database;
-using Attribute = DatabaseXmlProject.Models.Database.Attribute;
 
 namespace DatabaseXmlProject
 {
@@ -36,10 +35,10 @@ namespace DatabaseXmlProject
                         IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Tags')
                         BEGIN
                             CREATE TABLE dbo.Tags (
-                                tag_id int NOT NULL,
+                                tag_id uniqueidentifier NOT NULL,
                                 name varchar(max) NOT NULL,
                                 innertext varchar(max) NULL,
-                                parent_id int NULL,
+                                parent_id uniqueidentifier NULL,
                                 PRIMARY KEY CLUSTERED (tag_id)
                             )
 
@@ -53,8 +52,8 @@ namespace DatabaseXmlProject
                         IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Attributes')
                         BEGIN
                             CREATE TABLE dbo.Attributes (
-                                attribute_id int NOT NULL,
-                                tag_id int NOT NULL,
+                                attribute_id uniqueidentifier NOT NULL,
+                                tag_id uniqueidentifier NOT NULL,
                                 name varchar(max) NOT NULL,
                                 value varchar(max) NULL,
                                 PRIMARY KEY CLUSTERED (attribute_id)
@@ -101,7 +100,7 @@ namespace DatabaseXmlProject
             using (var sqlConnection = new SqlConnection(_connectionString))
             {
                 var databaseContext = new DataContext(sqlConnection);
-                var tags = databaseContext.GetTable<Tag>();
+                var tags = databaseContext.GetTable<DBTag>();
 //                db.Log = Console.Out;
                 var queryable =
                     from tag in tags
@@ -112,7 +111,29 @@ namespace DatabaseXmlProject
             }
         }
 
-        public void InsertTags(List<Tag> tags)
+        public List<DBTag> GetTags()
+        {
+            using (var sqlConnection = new SqlConnection(_connectionString))
+            {
+                var databaseContext = new DataContext(sqlConnection);
+                var tags = databaseContext.GetTable<DBTag>();
+
+                return tags.ToList();
+            }
+        }
+
+        public List<DBAttribute> GetAttributes()
+        {
+            using (var sqlConnection = new SqlConnection(_connectionString))
+            {
+                var databaseContext = new DataContext(sqlConnection);
+                var attributes = databaseContext.GetTable<DBAttribute>();
+
+                return attributes.ToList();
+            }
+        }
+
+        public void InsertTags(List<DBTag> tags)
         {
             var methodWatch = System.Diagnostics.Stopwatch.StartNew();
 
@@ -131,7 +152,7 @@ namespace DatabaseXmlProject
                 {
                     insertCommand.CommandText +=
                         $"INSERT INTO Tags (tag_id, name, innertext, parent_id) VALUES (@tag_id{tagCounter}, @name{tagCounter}, @innertext{tagCounter}, null);{Environment.NewLine}";
-                    insertCommand.Parameters.Add($"@tag_id{tagCounter}", SqlDbType.Int).Value = tag.TagId;
+                    insertCommand.Parameters.Add($"@tag_id{tagCounter}", SqlDbType.UniqueIdentifier).Value = tag.TagId;
                     insertCommand.Parameters.Add($"@name{tagCounter}", SqlDbType.VarChar).Value = tag.Name;
                     insertCommand.Parameters.Add($"@innertext{tagCounter}", SqlDbType.VarChar).Value =
                         tag.InnerText ?? (object) DBNull.Value;
@@ -159,9 +180,9 @@ namespace DatabaseXmlProject
                 {
                     updateCommand.CommandText +=
                         $"UPDATE Tags SET parent_id=@parent_id{tagCounter} WHERE tag_id=@tag_id{tagCounter};{Environment.NewLine}";
-                    updateCommand.Parameters.Add($"@parent_id{tagCounter}", SqlDbType.Int).Value =
+                    updateCommand.Parameters.Add($"@parent_id{tagCounter}", SqlDbType.UniqueIdentifier).Value =
                         tag.ParentId ?? (object) DBNull.Value;
-                    updateCommand.Parameters.Add($"@tag_id{tagCounter}", SqlDbType.Int).Value = tag.TagId;
+                    updateCommand.Parameters.Add($"@tag_id{tagCounter}", SqlDbType.UniqueIdentifier).Value = tag.TagId;
 
                     ++tagCounter;
                 }
@@ -177,7 +198,7 @@ namespace DatabaseXmlProject
             Console.WriteLine($"Tags added successfully in {methodWatch.ElapsedMilliseconds} ms");
         }
 
-        public void InsertAttributes(List<Attribute> attributes)
+        public void InsertAttributes(List<DBAttribute> attributes)
         {
             var methodWatch = System.Diagnostics.Stopwatch.StartNew();
 
@@ -193,9 +214,9 @@ namespace DatabaseXmlProject
                 {
                     command.CommandText +=
                         $"INSERT INTO Attributes (attribute_id, tag_id, name, value) VALUES (@attribute_id{attributeCounter}, @tag_id{attributeCounter}, @name{attributeCounter}, @value{attributeCounter});{Environment.NewLine}";
-                    command.Parameters.Add($"@attribute_id{attributeCounter}", SqlDbType.Int).Value =
+                    command.Parameters.Add($"@attribute_id{attributeCounter}", SqlDbType.UniqueIdentifier).Value =
                         attribute.AttributeId;
-                    command.Parameters.Add($"@tag_id{attributeCounter}", SqlDbType.Int).Value = attribute.TagId;
+                    command.Parameters.Add($"@tag_id{attributeCounter}", SqlDbType.UniqueIdentifier).Value = attribute.TagId;
                     command.Parameters.Add($"@name{attributeCounter}", SqlDbType.VarChar).Value = attribute.Name;
                     command.Parameters.Add($"@value{attributeCounter}", SqlDbType.VarChar).Value =
                         attribute.Value ?? (object) DBNull.Value;

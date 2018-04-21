@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using DatabaseXmlProject.Models.GenericXml;
 using DatabaseXmlProject.Models.Xml;
 
 namespace DatabaseXmlProject
@@ -10,14 +11,22 @@ namespace DatabaseXmlProject
         {
             var connectionString = File.ReadAllText("../../connection_string.secret.pass");
             var db = new Database(connectionString);
-            db.CreateTagsAndAttributesTables();
-            db.Clear();
+//            db.CreateTagsAndAttributesTables();
+//            db.Clear();
 
-            var root = Parser.ParseXmlToObject<Root>("../../input.xml");
+//            Element root = Parser.ParseXmlToElement("../../input.xml");
+//            var tagsAndAttributes = Parser.TagsAndAttributes.FromElements(root);
+//            db.InsertTags(tagsAndAttributes.Tags);
+//            db.InsertAttributes(tagsAndAttributes.Attributes);
 
-            var tagsAndAttributes = new Parser.TagsAndAttributes(root);
-            db.InsertTags(tagsAndAttributes.Tags);
-            db.InsertAttributes(tagsAndAttributes.Attributes);
+            var tags = db.GetTags();
+            var attributes = db.GetAttributes();
+            Element root = Parser.FromDatabase(tags, attributes);
+
+//            var root = Parser.ParseXmlToObject<Root>("../../input.xml");
+//            var tagsAndAttributes = Parser.TagsAndAttributes.FromObjects(root);
+//            db.InsertTags(tagsAndAttributes.Tags);
+//            db.InsertAttributes(tagsAndAttributes.Attributes);
 
             Console.WriteLine("Program exited successfully");
 

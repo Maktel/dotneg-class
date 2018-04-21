@@ -41,8 +41,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Database.cs" />
-    <Compile Include="Models\Database\Attribute.cs" />
-    <Compile Include="Models\Database\Tag.cs" />
+    <Compile Include="Models\Database\DBAttribute.cs" />
+    <Compile Include="Models\Database\DBTag.cs" />
+    <Compile Include="Models\GenericXml\Attribute.cs" />
+    <Compile Include="Models\GenericXml\Element.cs" />
     <Compile Include="Models\Xml\Currency.cs" />
     <Compile Include="Models\Xml\Dangerous.cs" />
     <Compile Include="Models\Xml\Disappoint.cs" />

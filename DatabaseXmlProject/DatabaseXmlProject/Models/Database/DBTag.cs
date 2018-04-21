@@ -1,9 +1,10 @@
-﻿using System.Data.Linq.Mapping;
+﻿using System;
+using System.Data.Linq.Mapping;
 
 namespace DatabaseXmlProject.Models.Database
 {
     [Table(Name = "Tags")]
-    public class Tag
+    public class DBTag
     {
         [Column(Name = "innertext", CanBeNull = true)]
         public string InnerText;
@@ -12,9 +13,9 @@ namespace DatabaseXmlProject.Models.Database
         public string Name;
 
         [Column(Name = "parent_id", CanBeNull = true)]
-        public int? ParentId;
+        public Guid? ParentId;
 
         [Column(IsPrimaryKey = true, Name = "tag_id")]
-        public int TagId;
+        public Guid TagId;
     }
 }

@@ -1,18 +1,19 @@
-﻿using System.Data.Linq.Mapping;
+﻿using System;
+using System.Data.Linq.Mapping;
 
 namespace DatabaseXmlProject.Models.Database
 {
     [Table(Name = "Attributes")]
-    public class Attribute
+    public class DBAttribute
     {
         [Column(IsPrimaryKey = true, Name = "attribute_id")]
-        public int AttributeId;
+        public Guid AttributeId;
+
+        [Column(Name = "tag_id", CanBeNull = false)]
+        public Guid TagId;
 
         [Column(Name = "name", CanBeNull = false)]
         public string Name;
-
-        [Column(Name = "tag_id", CanBeNull = false)]
-        public int TagId;
 
         [Column(Name = "value", CanBeNull = true)]
         public string Value;
