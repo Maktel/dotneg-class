@@ -19,8 +19,9 @@ namespace DatabaseXmlProject
             db.InsertTags(tagsAndAttributes.Tags);
             db.InsertAttributes(tagsAndAttributes.Attributes);
 
-            Console.WriteLine("Program exited. Press any key to continue...");
-            Console.ReadKey();
+            Console.WriteLine("Program exited successfully");
+
+            return;
         }
 
 //        static void ReadFromExample()

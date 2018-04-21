@@ -20,6 +20,8 @@ namespace DatabaseXmlProject
 
         public void CreateTagsAndAttributesTables()
         {
+            var methodWatch = System.Diagnostics.Stopwatch.StartNew();
+
             using (var connection = new SqlConnection(_connectionString))
             {
                 try
@@ -73,11 +75,14 @@ namespace DatabaseXmlProject
                 }
             }
 
-            Console.WriteLine("Tables exist or created successfully");
+            methodWatch.Stop();
+            Console.WriteLine($"Tables exist or created successfully in {methodWatch.ElapsedMilliseconds} ms");
         }
 
         public void Clear()
         {
+            var methodWatch = System.Diagnostics.Stopwatch.StartNew();
+
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
@@ -86,7 +91,8 @@ namespace DatabaseXmlProject
                 command.ExecuteNonQuery();
             }
 
-            Console.WriteLine("Database has been cleared (deleted all rows in both tables)");
+            methodWatch.Stop();
+            Console.WriteLine($"Database has been cleared (deleted all rows in both tables) in {methodWatch.ElapsedMilliseconds} ms");
         }
 
         public void TryGettingSomeExampleData()
@@ -107,10 +113,13 @@ namespace DatabaseXmlProject
 
         public void InsertTags(List<Tag> tags)
         {
+            var methodWatch = System.Diagnostics.Stopwatch.StartNew();
+
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
 
+                var operationWatch = System.Diagnostics.Stopwatch.StartNew();
                 // insert without foreign keys
                 foreach (var tag in tags)
                 {
@@ -125,7 +134,9 @@ namespace DatabaseXmlProject
                     command.ExecuteNonQuery();
                 }
 
-                Console.WriteLine($"{tags.Count} tags have been inserted with null as parent id");
+                operationWatch.Stop();
+                Console.WriteLine($"{tags.Count} tags have been inserted with null as parent id in {operationWatch.ElapsedMilliseconds} ms");
+                operationWatch.Restart();
 
                 // update with FKs
                 foreach (var tag in tags)
@@ -139,14 +150,17 @@ namespace DatabaseXmlProject
                     command.ExecuteNonQuery();
                 }
 
-                Console.WriteLine($"{tags.Count} tags have been updated with appropriate parent ids");
+                Console.WriteLine($"{tags.Count} tags have been updated with appropriate parent ids in {operationWatch.ElapsedMilliseconds} ms");
             }
 
-            Console.WriteLine("Tags added successfully");
+            methodWatch.Stop();
+            Console.WriteLine($"Tags added successfully in {methodWatch.ElapsedMilliseconds} ms");
         }
 
         public void InsertAttributes(List<Attribute> attributes)
         {
+            var methodWatch = System.Diagnostics.Stopwatch.StartNew();
+
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
@@ -168,7 +182,8 @@ namespace DatabaseXmlProject
                 Console.WriteLine($"{attributes.Count} attributes have been inserted");
             }
 
-            Console.WriteLine("Attributes added successfully");
+            methodWatch.Stop();
+            Console.WriteLine($"Attributes added successfully in {methodWatch.ElapsedMilliseconds} ms");
         }
     }
 }
