@@ -4,15 +4,12 @@ using System.Data;
 using System.Data.Linq;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using DatabaseXmlProject.Models.Database;
 using Attribute = DatabaseXmlProject.Models.Database.Attribute;
 
 namespace DatabaseXmlProject
 {
-    class Database
+    internal class Database
     {
         private readonly string _connectionString;
 
@@ -96,18 +93,15 @@ namespace DatabaseXmlProject
         {
             using (var sqlConnection = new SqlConnection(_connectionString))
             {
-                DataContext databaseContext = new DataContext(sqlConnection);
-                Table<Tag> tags = databaseContext.GetTable<Tag>();
+                var databaseContext = new DataContext(sqlConnection);
+                var tags = databaseContext.GetTable<Tag>();
 //                db.Log = Console.Out;
-                IQueryable<Tag> queryable =
+                var queryable =
                     from tag in tags
                     where tag.Name == "root"
                     select tag;
 
-                foreach (Tag tag in queryable)
-                {
-                    Console.WriteLine(tag.InnerText);
-                }
+                foreach (var tag in queryable) Console.WriteLine(tag.InnerText);
             }
         }
 
@@ -120,7 +114,7 @@ namespace DatabaseXmlProject
                 // insert without foreign keys
                 foreach (var tag in tags)
                 {
-                    SqlCommand command = connection.CreateCommand();
+                    var command = connection.CreateCommand();
                     command.CommandType = CommandType.Text;
                     command.CommandText =
                         @"INSERT INTO Tags (tag_id, name, innertext, parent_id) VALUES (@tag_id, @name, @innertext, null)";
@@ -136,11 +130,11 @@ namespace DatabaseXmlProject
                 // update with FKs
                 foreach (var tag in tags)
                 {
-                    SqlCommand command = connection.CreateCommand();
+                    var command = connection.CreateCommand();
                     command.CommandType = CommandType.Text;
                     command.CommandText =
                         @"UPDATE Tags SET parent_id=@parent_id WHERE tag_id=@tag_id";
-                    command.Parameters.Add("@parent_id", SqlDbType.Int).Value = tag.ParentId ?? (object)DBNull.Value;
+                    command.Parameters.Add("@parent_id", SqlDbType.Int).Value = tag.ParentId ?? (object) DBNull.Value;
                     command.Parameters.Add("@tag_id", SqlDbType.Int).Value = tag.TagId;
                     command.ExecuteNonQuery();
                 }
@@ -159,14 +153,15 @@ namespace DatabaseXmlProject
 
                 foreach (var attribute in attributes)
                 {
-                    SqlCommand command = connection.CreateCommand();
+                    var command = connection.CreateCommand();
                     command.CommandType = CommandType.Text;
                     command.CommandText =
                         @"INSERT INTO Attributes (attribute_id, tag_id, name, value) VALUES (@attribute_id, @tag_id, @name, @value)";
                     command.Parameters.Add("@attribute_id", SqlDbType.Int).Value = attribute.AttributeId;
                     command.Parameters.Add("@tag_id", SqlDbType.Int).Value = attribute.TagId;
                     command.Parameters.Add("@name", SqlDbType.VarChar).Value = attribute.Name;
-                    command.Parameters.Add("@value", SqlDbType.VarChar).Value = attribute.Value ?? (object)DBNull.Value;
+                    command.Parameters.Add("@value", SqlDbType.VarChar).Value =
+                        attribute.Value ?? (object) DBNull.Value;
                     command.ExecuteNonQuery();
                 }
 

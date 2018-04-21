@@ -1,24 +1,18 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
 using System.Xml.Serialization;
 using DatabaseXmlProject.Models.Database;
-using DatabaseXmlProject.Models.Xml;
-using Attribute = DatabaseXmlProject.Models.Database.Attribute;
 
 namespace DatabaseXmlProject
 {
-    class Parser
+    internal class Parser
     {
         public static T Parse<T>(string filepath)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(T));
-            using (StreamReader reader = new StreamReader(filepath))
+            var serializer = new XmlSerializer(typeof(T));
+            using (var reader = new StreamReader(filepath))
             {
                 return (T) serializer.Deserialize(reader);
             }
@@ -26,10 +20,8 @@ namespace DatabaseXmlProject
 
         public class TagsAndAttributes
         {
-            public List<Tag> Tags { get; }
-            private int _tagId = 0;
-            public List<Attribute> Attributes { get; }
             private int _attributeId = 1;
+            private int _tagId;
 
             public TagsAndAttributes(object startingTag)
             {
@@ -39,12 +31,15 @@ namespace DatabaseXmlProject
                 ParseTag(startingTag);
             }
 
+            public List<Tag> Tags { get; }
+            public List<Attribute> Attributes { get; }
+
             private void ParseTag(object tag, int? parentId = null)
             {
                 // class name contains namespace qualifiers
                 char[] delimiters = {'.'};
-                string tagName = tag.GetType().ToString().ToLower().Split(delimiters).Last();
-                Tag dbTag = new Tag
+                var tagName = tag.GetType().ToString().ToLower().Split(delimiters).Last();
+                var dbTag = new Tag
                 {
                     TagId = ++_tagId,
                     ParentId = parentId,
@@ -66,7 +61,7 @@ namespace DatabaseXmlProject
                                 break;
                             }
 
-                            Attribute dbAttribute = new Attribute
+                            var dbAttribute = new Attribute
                             {
                                 AttributeId = _attributeId++,
                                 Name = fieldName.ToLower(),
@@ -77,10 +72,7 @@ namespace DatabaseXmlProject
 
                             break;
                         case IList _:
-                            foreach (var listElement in (IList) field)
-                            {
-                                ParseTag(listElement, dbTag.TagId);
-                            }
+                            foreach (var listElement in (IList) field) ParseTag(listElement, dbTag.TagId);
 
                             break;
                         default:

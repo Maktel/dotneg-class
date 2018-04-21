@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Linq.Mapping;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Data.Linq.Mapping;
 
 namespace DatabaseXmlProject.Models.Database
 {
@@ -13,12 +8,13 @@ namespace DatabaseXmlProject.Models.Database
         [Column(IsPrimaryKey = true, Name = "attribute_id")]
         public int AttributeId;
 
-        [Column(Name = "tag_id", CanBeNull = false)]
-        public int TagId;
-
         [Column(Name = "name", CanBeNull = false)]
         public string Name;
 
-        [Column(Name = "value", CanBeNull = true)] public string Value;
+        [Column(Name = "tag_id", CanBeNull = false)]
+        public int TagId;
+
+        [Column(Name = "value", CanBeNull = true)]
+        public string Value;
     }
 }
