@@ -179,7 +179,7 @@ namespace DatabaseXmlProject
                 foreach (var tag in tags)
                 {
                     updateCommand.CommandText +=
-                        $"UPDATE Tags SET parent_id=@parent_id{tagCounter} WHERE tag_id=@tag_id{tagCounter};{Environment.NewLine}";
+                        $"UPDATE Tags SET parent_id = @parent_id{tagCounter} WHERE tag_id = @tag_id{tagCounter};{Environment.NewLine}";
                     updateCommand.Parameters.Add($"@parent_id{tagCounter}", SqlDbType.UniqueIdentifier).Value =
                         tag.ParentId ?? (object) DBNull.Value;
                     updateCommand.Parameters.Add($"@tag_id{tagCounter}", SqlDbType.UniqueIdentifier).Value = tag.TagId;
@@ -216,7 +216,8 @@ namespace DatabaseXmlProject
                         $"INSERT INTO Attributes (attribute_id, tag_id, name, value) VALUES (@attribute_id{attributeCounter}, @tag_id{attributeCounter}, @name{attributeCounter}, @value{attributeCounter});{Environment.NewLine}";
                     command.Parameters.Add($"@attribute_id{attributeCounter}", SqlDbType.UniqueIdentifier).Value =
                         attribute.AttributeId;
-                    command.Parameters.Add($"@tag_id{attributeCounter}", SqlDbType.UniqueIdentifier).Value = attribute.TagId;
+                    command.Parameters.Add($"@tag_id{attributeCounter}", SqlDbType.UniqueIdentifier).Value =
+                        attribute.TagId;
                     command.Parameters.Add($"@name{attributeCounter}", SqlDbType.VarChar).Value = attribute.Name;
                     command.Parameters.Add($"@value{attributeCounter}", SqlDbType.VarChar).Value =
                         attribute.Value ?? (object) DBNull.Value;
@@ -224,7 +225,8 @@ namespace DatabaseXmlProject
                     ++attributeCounter;
                 }
 
-                Console.WriteLine($"Attribute parsing ended in {methodWatch.ElapsedMilliseconds} ms. Insertion started");
+                Console.WriteLine(
+                    $"Attribute parsing ended in {methodWatch.ElapsedMilliseconds} ms. Insertion started");
                 command.ExecuteNonQuery();
 
                 Console.WriteLine($"{attributes.Count} attributes have been inserted");
@@ -232,6 +234,90 @@ namespace DatabaseXmlProject
 
             methodWatch.Stop();
             Console.WriteLine($"Attributes added successfully in {methodWatch.ElapsedMilliseconds} ms");
+        }
+
+        public void DeleteAttributeById(string idForDeletion)
+        {
+            DeleteAttributeById(Guid.Parse(idForDeletion));
+        }
+
+        public void DeleteAttributeById(Guid idForDeletion)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                var command = connection.CreateCommand();
+                command.CommandType = CommandType.Text;
+                command.CommandText = $"DELETE FROM Attributes WHERE attribute_id = @attribute_id";
+                command.Parameters.Add("@attribute_id", SqlDbType.UniqueIdentifier).Value = idForDeletion;
+
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void DeleteTagById(string idForDeletion)
+        {
+            DeleteTagById(Guid.Parse(idForDeletion));
+        }
+
+        public void DeleteTagById(Guid idForDeletion)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                var command = connection.CreateCommand();
+                command.CommandType = CommandType.Text;
+                command.CommandText = $"SELECT tag_id FROM Tags WHERE parent_id = @deleted_id";
+                command.Parameters.Add("@deleted_id", SqlDbType.UniqueIdentifier).Value = idForDeletion;
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        DeleteTagById(reader.GetGuid(0));
+
+                        // use this if first column is actually a tag_id xD
+                        // DeleteTagById(reader.GetGuid(0));
+                    }
+                }
+
+                command.CommandText = $"DELETE FROM Attributes WHERE tag_id = @deleted_id";
+                command.ExecuteNonQuery();
+
+                command.CommandText = $"DELETE FROM Tags WHERE tag_id = @deleted_id";
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void DeleteTagsByName(string tagName)
+        {
+            var methodWatch = System.Diagnostics.Stopwatch.StartNew();
+
+            int rowCount = 0;
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                var command = connection.CreateCommand();
+                command.CommandType = CommandType.Text;
+                command.CommandText = $"SELECT tag_id FROM Tags WHERE name = @deleted_name";
+                command.Parameters.Add($"@deleted_name", SqlDbType.VarChar).Value = tagName;
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        DeleteTagById(reader.GetGuid(0));
+                        ++rowCount;
+                    }
+                }
+            }
+
+            methodWatch.Stop();
+            Console.WriteLine(
+                $"Successfully deleted {rowCount} rows with name {tagName} in {methodWatch.ElapsedMilliseconds} ms");
         }
     }
 }

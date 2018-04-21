@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Xml;
 using DatabaseXmlProject.Models.GenericXml;
 using DatabaseXmlProject.Models.Xml;
 
@@ -14,14 +15,19 @@ namespace DatabaseXmlProject
 //            db.CreateTagsAndAttributesTables();
 //            db.Clear();
 
-//            Element root = Parser.ParseXmlToElement("../../input.xml");
-//            var tagsAndAttributes = Parser.TagsAndAttributes.FromElements(root);
+//            Element rootFromXml = Parser.ParseXmlToElement("../../input.xml");
+//            var tagsAndAttributes = Parser.TagsAndAttributes.FromElements(rootFromXml);
 //            db.InsertTags(tagsAndAttributes.Tags);
 //            db.InsertAttributes(tagsAndAttributes.Attributes);
 
+            db.DeleteTagsByName("hall");
+
             var tags = db.GetTags();
             var attributes = db.GetAttributes();
-            Element root = Parser.FromDatabase(tags, attributes);
+            Element rootFromDatabase = Parser.FromDatabase(tags, attributes);
+
+            XmlDocument xml = Parser.XmlFromElement(rootFromDatabase);
+            Console.WriteLine(Parser.XmlAsString(xml));
 
 //            var root = Parser.ParseXmlToObject<Root>("../../input.xml");
 //            var tagsAndAttributes = Parser.TagsAndAttributes.FromObjects(root);

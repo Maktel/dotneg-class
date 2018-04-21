@@ -72,6 +72,45 @@ namespace DatabaseXmlProject
             return e;
         }
 
+        public static XmlDocument XmlFromElement(Element element)
+        {
+            XmlDocument xml = new XmlDocument();
+
+            XmlDeclaration decl = xml.CreateXmlDeclaration("1.0", "UTF-8", null);
+            xml.AppendChild(decl);
+
+            xml.AppendChild(XmlNodeFromElement(element, xml));
+            return xml;
+        }
+
+        public static string XmlAsString(XmlDocument xml)
+        {
+            StringWriter stringWriter = new StringWriter();
+            XmlTextWriter xmlTextWriter = new XmlTextWriter(stringWriter) { Formatting = Formatting.Indented };
+            xml.WriteTo(xmlTextWriter);
+
+            return stringWriter.ToString();
+        }
+
+        private static XmlNode XmlNodeFromElement(Element element, XmlDocument xml)
+        {
+            XmlNode node = xml.CreateElement(element.Name);
+            node.InnerText = element.InnerText;
+            foreach (var elementAttribute in element.Attributes)
+            {
+                XmlAttribute attribute = xml.CreateAttribute(elementAttribute.Name);
+                attribute.Value = elementAttribute.Value;
+                node.Attributes.Append(attribute);
+            }
+
+            foreach (var elementChild in element.Children)
+            {
+                node.AppendChild(XmlNodeFromElement(elementChild, xml));
+            }
+
+            return node;
+        }
+
         public static Element FromDatabase(List<DBTag> dbTags, List<DBAttribute> dbAttributes)
         {
             var rootElementQuery =
