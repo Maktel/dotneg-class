@@ -7,9 +7,9 @@ using DatabaseXmlProject.Models.Database;
 
 namespace DatabaseXmlProject
 {
-    internal class Parser
+    internal static class Parser
     {
-        public static T Parse<T>(string filepath)
+        public static T ParseXmlToObject<T>(string filepath)
         {
             var serializer = new XmlSerializer(typeof(T));
             using (var reader = new StreamReader(filepath))
@@ -72,7 +72,10 @@ namespace DatabaseXmlProject
 
                             break;
                         case IList _:
-                            foreach (var listElement in (IList) field) ParseTag(listElement, dbTag.TagId);
+                            foreach (var listElement in (IList) field)
+                            {
+                                ParseTag(listElement, dbTag.TagId);
+                            }
 
                             break;
                         default:

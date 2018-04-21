@@ -92,7 +92,8 @@ namespace DatabaseXmlProject
             }
 
             methodWatch.Stop();
-            Console.WriteLine($"Database has been cleared (deleted all rows in both tables) in {methodWatch.ElapsedMilliseconds} ms");
+            Console.WriteLine(
+                $"Database has been cleared (deleted all rows in both tables) in {methodWatch.ElapsedMilliseconds} ms");
         }
 
         public void TryGettingSomeExampleData()
@@ -120,37 +121,56 @@ namespace DatabaseXmlProject
                 connection.Open();
 
                 var operationWatch = System.Diagnostics.Stopwatch.StartNew();
+
                 // insert without foreign keys
+                var insertCommand = connection.CreateCommand();
+                insertCommand.CommandType = CommandType.Text;
+                insertCommand.CommandText = "";
+                int tagCounter = 1;
                 foreach (var tag in tags)
                 {
-                    var command = connection.CreateCommand();
-                    command.CommandType = CommandType.Text;
-                    command.CommandText =
-                        @"INSERT INTO Tags (tag_id, name, innertext, parent_id) VALUES (@tag_id, @name, @innertext, null)";
-                    command.Parameters.Add("@tag_id", SqlDbType.Int).Value = tag.TagId;
-                    command.Parameters.Add("@name", SqlDbType.VarChar).Value = tag.Name;
-                    command.Parameters.Add("@innertext", SqlDbType.VarChar).Value =
+                    insertCommand.CommandText +=
+                        $"INSERT INTO Tags (tag_id, name, innertext, parent_id) VALUES (@tag_id{tagCounter}, @name{tagCounter}, @innertext{tagCounter}, null);{Environment.NewLine}";
+                    insertCommand.Parameters.Add($"@tag_id{tagCounter}", SqlDbType.Int).Value = tag.TagId;
+                    insertCommand.Parameters.Add($"@name{tagCounter}", SqlDbType.VarChar).Value = tag.Name;
+                    insertCommand.Parameters.Add($"@innertext{tagCounter}", SqlDbType.VarChar).Value =
                         tag.InnerText ?? (object) DBNull.Value;
-                    command.ExecuteNonQuery();
+
+
+                    ++tagCounter;
                 }
+
+                Console.WriteLine($"Tag parsing ended in {operationWatch.ElapsedMilliseconds} ms. Insertion started");
+                insertCommand.ExecuteNonQuery();
 
                 operationWatch.Stop();
-                Console.WriteLine($"{tags.Count} tags have been inserted with null as parent id in {operationWatch.ElapsedMilliseconds} ms");
+                Console.WriteLine(
+                    $"{tags.Count} tags have been inserted with null as parent id in {operationWatch.ElapsedMilliseconds} ms");
                 operationWatch.Restart();
 
+
                 // update with FKs
+                var updateCommand = connection.CreateCommand();
+                updateCommand.CommandType = CommandType.Text;
+                updateCommand.CommandText = "";
+
+                tagCounter = 1;
                 foreach (var tag in tags)
                 {
-                    var command = connection.CreateCommand();
-                    command.CommandType = CommandType.Text;
-                    command.CommandText =
-                        @"UPDATE Tags SET parent_id=@parent_id WHERE tag_id=@tag_id";
-                    command.Parameters.Add("@parent_id", SqlDbType.Int).Value = tag.ParentId ?? (object) DBNull.Value;
-                    command.Parameters.Add("@tag_id", SqlDbType.Int).Value = tag.TagId;
-                    command.ExecuteNonQuery();
+                    updateCommand.CommandText +=
+                        $"UPDATE Tags SET parent_id=@parent_id{tagCounter} WHERE tag_id=@tag_id{tagCounter};{Environment.NewLine}";
+                    updateCommand.Parameters.Add($"@parent_id{tagCounter}", SqlDbType.Int).Value =
+                        tag.ParentId ?? (object) DBNull.Value;
+                    updateCommand.Parameters.Add($"@tag_id{tagCounter}", SqlDbType.Int).Value = tag.TagId;
+
+                    ++tagCounter;
                 }
 
-                Console.WriteLine($"{tags.Count} tags have been updated with appropriate parent ids in {operationWatch.ElapsedMilliseconds} ms");
+                Console.WriteLine($"Tag parsing ended in {operationWatch.ElapsedMilliseconds} ms. Update started");
+                updateCommand.ExecuteNonQuery();
+
+                Console.WriteLine(
+                    $"{tags.Count} tags have been updated with appropriate parent ids in {operationWatch.ElapsedMilliseconds} ms");
             }
 
             methodWatch.Stop();
@@ -165,19 +185,26 @@ namespace DatabaseXmlProject
             {
                 connection.Open();
 
+                var command = connection.CreateCommand();
+                command.CommandType = CommandType.Text;
+                command.CommandText = "";
+                int attributeCounter = 1;
                 foreach (var attribute in attributes)
                 {
-                    var command = connection.CreateCommand();
-                    command.CommandType = CommandType.Text;
-                    command.CommandText =
-                        @"INSERT INTO Attributes (attribute_id, tag_id, name, value) VALUES (@attribute_id, @tag_id, @name, @value)";
-                    command.Parameters.Add("@attribute_id", SqlDbType.Int).Value = attribute.AttributeId;
-                    command.Parameters.Add("@tag_id", SqlDbType.Int).Value = attribute.TagId;
-                    command.Parameters.Add("@name", SqlDbType.VarChar).Value = attribute.Name;
-                    command.Parameters.Add("@value", SqlDbType.VarChar).Value =
+                    command.CommandText +=
+                        $"INSERT INTO Attributes (attribute_id, tag_id, name, value) VALUES (@attribute_id{attributeCounter}, @tag_id{attributeCounter}, @name{attributeCounter}, @value{attributeCounter});{Environment.NewLine}";
+                    command.Parameters.Add($"@attribute_id{attributeCounter}", SqlDbType.Int).Value =
+                        attribute.AttributeId;
+                    command.Parameters.Add($"@tag_id{attributeCounter}", SqlDbType.Int).Value = attribute.TagId;
+                    command.Parameters.Add($"@name{attributeCounter}", SqlDbType.VarChar).Value = attribute.Name;
+                    command.Parameters.Add($"@value{attributeCounter}", SqlDbType.VarChar).Value =
                         attribute.Value ?? (object) DBNull.Value;
-                    command.ExecuteNonQuery();
+
+                    ++attributeCounter;
                 }
+
+                Console.WriteLine($"Attribute parsing ended in {methodWatch.ElapsedMilliseconds} ms. Insertion started");
+                command.ExecuteNonQuery();
 
                 Console.WriteLine($"{attributes.Count} attributes have been inserted");
             }

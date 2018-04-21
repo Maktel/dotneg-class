@@ -13,7 +13,7 @@ namespace DatabaseXmlProject
             db.CreateTagsAndAttributesTables();
             db.Clear();
 
-            var root = Parser.Parse<Root>("../../input.xml");
+            var root = Parser.ParseXmlToObject<Root>("../../input.xml");
 
             var tagsAndAttributes = new Parser.TagsAndAttributes(root);
             db.InsertTags(tagsAndAttributes.Tags);
