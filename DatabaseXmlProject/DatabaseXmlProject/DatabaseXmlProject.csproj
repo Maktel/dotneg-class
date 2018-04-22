@@ -40,9 +40,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Converter.cs" />
     <Compile Include="Database.cs" />
-    <Compile Include="Models\Database\DBAttribute.cs" />
-    <Compile Include="Models\Database\DBTag.cs" />
+    <Compile Include="Models\Database\DbAttribute.cs" />
+    <Compile Include="Models\Database\DbTag.cs" />
+    <Compile Include="Models\Database\DbTagsAndAttributes.cs" />
     <Compile Include="Models\GenericXml\Attribute.cs" />
     <Compile Include="Models\GenericXml\Element.cs" />
     <Compile Include="Models\Xml\Currency.cs" />

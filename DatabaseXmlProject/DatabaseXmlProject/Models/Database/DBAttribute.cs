@@ -4,7 +4,7 @@ using System.Data.Linq.Mapping;
 namespace DatabaseXmlProject.Models.Database
 {
     [Table(Name = "Attributes")]
-    public class DBAttribute
+    public class DbAttribute
     {
         [Column(IsPrimaryKey = true, Name = "attribute_id")]
         public Guid AttributeId;

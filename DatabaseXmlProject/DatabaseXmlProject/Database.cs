@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Linq;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
+using System.Security.Cryptography;
 using DatabaseXmlProject.Models.Database;
 
 namespace DatabaseXmlProject
@@ -11,15 +13,14 @@ namespace DatabaseXmlProject
     internal class Database
     {
         private readonly string _connectionString;
-
         public Database(string connectionString)
         {
             _connectionString = connectionString;
         }
 
-        public void CreateTagsAndAttributesTables()
+        public void CreateTables()
         {
-            var methodWatch = System.Diagnostics.Stopwatch.StartNew();
+            var methodWatch = Stopwatch.StartNew();
 
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -78,9 +79,9 @@ namespace DatabaseXmlProject
             Console.WriteLine($"Tables exist or created successfully in {methodWatch.ElapsedMilliseconds} ms");
         }
 
-        public void Clear()
+        public void ClearTables()
         {
-            var methodWatch = System.Diagnostics.Stopwatch.StartNew();
+            var methodWatch = Stopwatch.StartNew();
 
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -95,53 +96,42 @@ namespace DatabaseXmlProject
                 $"Database has been cleared (deleted all rows in both tables) in {methodWatch.ElapsedMilliseconds} ms");
         }
 
-        public void TryGettingSomeExampleData()
+        public List<DbTag> GetTags()
         {
             using (var sqlConnection = new SqlConnection(_connectionString))
             {
                 var databaseContext = new DataContext(sqlConnection);
-                var tags = databaseContext.GetTable<DBTag>();
-//                db.Log = Console.Out;
-                var queryable =
-                    from tag in tags
-                    where tag.Name == "root"
-                    select tag;
-
-                foreach (var tag in queryable) Console.WriteLine(tag.InnerText);
-            }
-        }
-
-        public List<DBTag> GetTags()
-        {
-            using (var sqlConnection = new SqlConnection(_connectionString))
-            {
-                var databaseContext = new DataContext(sqlConnection);
-                var tags = databaseContext.GetTable<DBTag>();
+                var tags = databaseContext.GetTable<DbTag>();
 
                 return tags.ToList();
             }
         }
 
-        public List<DBAttribute> GetAttributes()
+        public List<DbAttribute> GetAttributes()
         {
             using (var sqlConnection = new SqlConnection(_connectionString))
             {
                 var databaseContext = new DataContext(sqlConnection);
-                var attributes = databaseContext.GetTable<DBAttribute>();
+                var attributes = databaseContext.GetTable<DbAttribute>();
 
                 return attributes.ToList();
             }
         }
 
-        public void InsertTags(List<DBTag> tags)
+        public DbTagsAndAttributes GetTagsAndAttributes()
         {
-            var methodWatch = System.Diagnostics.Stopwatch.StartNew();
+            return new DbTagsAndAttributes(GetTags(), GetAttributes());
+        }
+
+        public void InsertTags(List<DbTag> tags)
+        {
+            var methodWatch = Stopwatch.StartNew();
 
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
 
-                var operationWatch = System.Diagnostics.Stopwatch.StartNew();
+                var operationWatch = Stopwatch.StartNew();
 
                 // insert without foreign keys
                 var insertCommand = connection.CreateCommand();
@@ -198,9 +188,9 @@ namespace DatabaseXmlProject
             Console.WriteLine($"Tags added successfully in {methodWatch.ElapsedMilliseconds} ms");
         }
 
-        public void InsertAttributes(List<DBAttribute> attributes)
+        public void InsertAttributes(List<DbAttribute> attributes)
         {
-            var methodWatch = System.Diagnostics.Stopwatch.StartNew();
+            var methodWatch = Stopwatch.StartNew();
 
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -293,7 +283,7 @@ namespace DatabaseXmlProject
 
         public void DeleteTagsByName(string tagName)
         {
-            var methodWatch = System.Diagnostics.Stopwatch.StartNew();
+            var methodWatch = Stopwatch.StartNew();
 
             int rowCount = 0;
             using (var connection = new SqlConnection(_connectionString))

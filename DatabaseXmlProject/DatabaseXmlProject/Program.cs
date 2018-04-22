@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Xml;
 using DatabaseXmlProject.Models.GenericXml;
@@ -10,65 +11,30 @@ namespace DatabaseXmlProject
     {
         private static void Main(string[] args)
         {
+            var methodWatch = Stopwatch.StartNew();
+
             var connectionString = File.ReadAllText("../../connection_string.secret.pass");
             var db = new Database(connectionString);
-//            db.CreateTagsAndAttributesTables();
-//            db.Clear();
+            db.CreateTables();
+            db.ClearTables();
 
-//            Element rootFromXml = Parser.ParseXmlToElement("../../input.xml");
-//            var tagsAndAttributes = Parser.TagsAndAttributes.FromElements(rootFromXml);
-//            db.InsertTags(tagsAndAttributes.Tags);
-//            db.InsertAttributes(tagsAndAttributes.Attributes);
+            Element rootFromXml = Parser.ElementFromXml("../../input.xml");
+            var tagsAndAttributesFromXml = Converter.DatabaseFromElement(rootFromXml);
+            db.InsertTags(tagsAndAttributesFromXml.Tags);
+            db.InsertAttributes(tagsAndAttributesFromXml.Attributes);
 
             db.DeleteTagsByName("hall");
 
-            var tags = db.GetTags();
-            var attributes = db.GetAttributes();
-            Element rootFromDatabase = Parser.FromDatabase(tags, attributes);
+            var tagsAndAttributesFromDatabase = db.GetTagsAndAttributes();
+            Element rootFromDatabase = Converter.ElementFromDatabase(tagsAndAttributesFromDatabase);
 
             XmlDocument xml = Parser.XmlFromElement(rootFromDatabase);
-            Console.WriteLine(Parser.XmlAsString(xml));
+            Console.WriteLine(Parser.StringFromXml(xml));
 
-//            var root = Parser.ParseXmlToObject<Root>("../../input.xml");
-//            var tagsAndAttributes = Parser.TagsAndAttributes.FromObjects(root);
-//            db.InsertTags(tagsAndAttributes.Tags);
-//            db.InsertAttributes(tagsAndAttributes.Attributes);
-
-            Console.WriteLine("Program exited successfully");
+            methodWatch.Stop();
+            Console.WriteLine($"Program exited successfully in {methodWatch.ElapsedMilliseconds} ms");
 
             return;
         }
-
-//        static void ReadFromExample()
-//        {
-//            SqlConnection sqlConnection = new SqlConnection(_connectionString);
-//            var sqlCommand = sqlConnection.CreateCommand();
-//            sqlCommand.CommandType = CommandType.Text;
-//            sqlCommand.CommandText = @"SELECT * FROM SalesLT.Address;";
-//
-//            sqlConnection.Open();
-//            var reader = sqlCommand.ExecuteReader();
-//
-//            StringBuilder sb = new StringBuilder();
-//            try
-//            {
-//                while (reader.Read())
-//                {
-//                    for (var i = 0; i < reader.FieldCount; ++i)
-//                    {
-//                        sb.Append($"{reader.GetName(i)}: {reader[i]}, ");
-//                    }
-//
-//                    sb.Append($"{Environment.NewLine}");
-//                }
-//            }
-//            finally
-//            {
-//                reader.Close();
-//                Console.WriteLine(sb);
-//            }
-//
-//            sqlConnection.Close();
-//        }
     }
 }

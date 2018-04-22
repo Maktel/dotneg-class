@@ -4,7 +4,7 @@ using System.Data.Linq.Mapping;
 namespace DatabaseXmlProject.Models.Database
 {
     [Table(Name = "Tags")]
-    public class DBTag
+    public class DbTag
     {
         [Column(Name = "innertext", CanBeNull = true)]
         public string InnerText;
