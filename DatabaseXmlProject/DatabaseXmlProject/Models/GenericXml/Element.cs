@@ -15,5 +15,17 @@ namespace DatabaseXmlProject.Models.GenericXml
         public string InnerText;
         public List<Element> Children = new List<Element>();
         public List<Attribute> Attributes = new List<Attribute>();
+
+        public Attribute AddAttribute(string name, string value)
+        {
+            Attribute attribute = new Attribute()
+            {
+                AttributeId = Guid.NewGuid(),
+                Name = name,
+                Value = value
+            };
+            Attributes.Add(attribute);
+            return attribute;
+        }
     }
 }

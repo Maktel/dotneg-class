@@ -13,6 +13,7 @@ namespace DatabaseXmlProject
     internal class Database
     {
         private readonly string _connectionString;
+
         public Database(string connectionString)
         {
             _connectionString = connectionString;
@@ -187,7 +188,6 @@ namespace DatabaseXmlProject
             methodWatch.Stop();
             Console.WriteLine($"Tags added successfully in {methodWatch.ElapsedMilliseconds} ms");
         }
-
         public void InsertAttributes(List<DbAttribute> attributes)
         {
             var methodWatch = Stopwatch.StartNew();
@@ -226,11 +226,14 @@ namespace DatabaseXmlProject
             Console.WriteLine($"Attributes added successfully in {methodWatch.ElapsedMilliseconds} ms");
         }
 
+        public void DeleteAttribute(DbAttribute attribute)
+        {
+            DeleteAttributeById(attribute.AttributeId);
+        }
         public void DeleteAttributeById(string idForDeletion)
         {
             DeleteAttributeById(Guid.Parse(idForDeletion));
         }
-
         public void DeleteAttributeById(Guid idForDeletion)
         {
             using (var connection = new SqlConnection(_connectionString))
@@ -246,11 +249,14 @@ namespace DatabaseXmlProject
             }
         }
 
+        public void DeleteTag(DbTag tag)
+        {
+            DeleteTagById(tag.TagId);
+        }
         public void DeleteTagById(string idForDeletion)
         {
             DeleteTagById(Guid.Parse(idForDeletion));
         }
-
         public void DeleteTagById(Guid idForDeletion)
         {
             using (var connection = new SqlConnection(_connectionString))
@@ -308,6 +314,142 @@ namespace DatabaseXmlProject
             methodWatch.Stop();
             Console.WriteLine(
                 $"Successfully deleted {rowCount} rows with name {tagName} in {methodWatch.ElapsedMilliseconds} ms");
+        }
+
+        public void UpdateAttributes(List<DbAttribute> attributes)
+        {
+            var methodWatch = Stopwatch.StartNew();
+
+            int affectedRows;
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                var command = connection.CreateCommand();
+                command.CommandType = CommandType.Text;
+                command.CommandText = "";
+
+                int attributeCounter = 1;
+                foreach (var attribute in attributes)
+                {
+                    command.CommandText +=
+                        $"UPDATE Attributes SET name = @name{attributeCounter}, value = @value{attributeCounter}, tag_id = @tag_id{attributeCounter} WHERE attribute_id = @attribute_id{attributeCounter};{Environment.NewLine}";
+                    command.Parameters.Add($"@name{attributeCounter}", SqlDbType.VarChar).Value = attribute.Name;
+                    command.Parameters.Add($"@value{attributeCounter}", SqlDbType.VarChar).Value =
+                        attribute.Value ?? (object) DBNull.Value;
+                    command.Parameters.Add($"@tag_id{attributeCounter}", SqlDbType.UniqueIdentifier).Value =
+                        attribute.TagId;
+                    command.Parameters.Add($"@attribute_id{attributeCounter}", SqlDbType.UniqueIdentifier).Value =
+                        attribute.AttributeId;
+                    ++attributeCounter;
+                }
+
+                affectedRows = command.ExecuteNonQuery();
+            }
+
+            methodWatch.Stop();
+            Console.WriteLine(
+                $"{affectedRows} attributes have been potentially updated in {methodWatch.ElapsedMilliseconds} ms");
+        }
+
+        public void UpdateTags(List<DbTag> tags)
+        {
+            var methodWatch = Stopwatch.StartNew();
+
+            int affectedRows;
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                var command = connection.CreateCommand();
+                command.CommandType = CommandType.Text;
+                command.CommandText = "";
+
+                int tagCounter = 1;
+                foreach (var tag in tags)
+                {
+                    command.CommandText +=
+                        $"UPDATE Tags SET name = @name{tagCounter}, innertext = @innertext{tagCounter}, parent_id = @parent_id{tagCounter} WHERE tag_id = @tag_id{tagCounter};{Environment.NewLine}";
+                    command.Parameters.Add($"@name{tagCounter}", SqlDbType.VarChar).Value = tag.Name;
+                    command.Parameters.Add($"@innertext{tagCounter}", SqlDbType.VarChar).Value =
+                        tag.InnerText ?? (object) DBNull.Value;
+                    command.Parameters.Add($"@parent_id{tagCounter}", SqlDbType.UniqueIdentifier).Value =
+                        tag.ParentId ?? (object) DBNull.Value;
+                    command.Parameters.Add($"@tag_id{tagCounter}", SqlDbType.UniqueIdentifier).Value = tag.TagId;
+
+                    ++tagCounter;
+                }
+
+                affectedRows = command.ExecuteNonQuery();
+            }
+
+            methodWatch.Stop();
+            Console.WriteLine(
+                $"{affectedRows} tags have been potentially updated in {methodWatch.ElapsedMilliseconds} ms");
+        }
+
+        public void UpdateTagsAndAttributes(DbTagsAndAttributes tagsAndAttributes)
+        {
+            UpdateTags(tagsAndAttributes.Tags);
+            UpdateAttributes(tagsAndAttributes.Attributes);
+        }
+
+        public void UpdateOrInsertTag(DbTag tag)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                var command = connection.CreateCommand();
+                command.CommandType = CommandType.Text;
+
+                // try updating
+                command.CommandText =
+                    "UPDATE Tags SET name = @name, innertext = @innertext, parent_id = @parent_id WHERE tag_id = @tag_id; SELECT @@ROWCOUNT;";
+                command.Parameters.Add("@name", SqlDbType.VarChar).Value = tag.Name;
+                command.Parameters.Add("@innertext", SqlDbType.VarChar).Value = tag.InnerText ?? (object)DBNull.Value;
+                command.Parameters.Add("@parent_id", SqlDbType.UniqueIdentifier).Value = tag.ParentId ?? (object)DBNull.Value;
+                command.Parameters.Add("@tag_id", SqlDbType.UniqueIdentifier).Value = tag.TagId;
+
+                int affectedRows = (int)command.ExecuteScalar();
+
+                // row doesn't exist, insert
+                if (affectedRows == 0)
+                {
+                    command.CommandText =
+                        "INSERT INTO Tags (tag_id, name, innertext, parent_id) VALUES (@tag_id, @name, @innertext, @parent_id);";
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void UpdateOrInsertAttribute(DbAttribute attribute)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                var command = connection.CreateCommand();
+                command.CommandType = CommandType.Text;
+
+                // try updating
+                command.CommandText =
+                    "UPDATE Attributes SET name = @name, value = @value, tag_id = @tag_id WHERE attribute_id = @attribute_id; SELECT @@ROWCOUNT;";
+                command.Parameters.Add("@name", SqlDbType.VarChar).Value = attribute.Name;
+                command.Parameters.Add("@value", SqlDbType.VarChar).Value = attribute.Value ?? (object)DBNull.Value;
+                command.Parameters.Add("@tag_id", SqlDbType.UniqueIdentifier).Value = attribute.TagId;
+                command.Parameters.Add("@attribute_id", SqlDbType.UniqueIdentifier).Value = attribute.AttributeId;
+
+                int affectedRows = (int)command.ExecuteScalar();
+
+                // row doesn't exist, insert
+                if (affectedRows == 0)
+                {
+                    command.CommandText =
+                        "INSERT INTO Attributes (attribute_id, name, value, tag_id) VALUES (@attribute_id, @name, @value, @tag_id);";
+                    command.ExecuteNonQuery();
+                }
+            }
         }
     }
 }
